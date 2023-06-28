@@ -53,5 +53,5 @@ fn read_string() -> String {
 
 fn read_number() -> u8 {
     let input = read_string();
-    u8::from_str(&input).expect("input is not a number")
+    u8::from_str(&input).unwrap_or(0)
 }
