@@ -1,5 +1,4 @@
-use std::{option, str::FromStr, sync::Arc};
-
+use std::str::FromStr;
 struct Person {
     first_name: String,
     last_name: String,
@@ -24,14 +23,21 @@ impl Person {
 
 fn main() {
     let person = new_from_input();
-    let person2 = Person::new("John".to_string(), "Doe".to_string(), Some(42));
 
-    let new_vec = vec![person, person2];
+    match write_person(&person) {
+        Ok(_) => println!("people.txt was written successfully"),
+        Err(err) => println!("There was error while writing people.txt: {}", err),
+    }
 
-    for number in 0..=1 {
-        new_vec[number].print();
+    match read_person() {
+        Ok(person) => {
+            println!("people.txt was read successfully");
+            person.print();
+        }
+        Err(err) => println!("There was error while reading people.txt: {}", err),
     }
 }
+
 fn new_from_input() -> Person {
     println!("What is your first name?");
     let first_name = read_string();
@@ -77,4 +83,19 @@ fn write_person(person: &Person) -> std::io::Result<()> {
     }
     output.push('\n');
     std::fs::write("people.txt", output)
+}
+
+fn read_person() -> Result<Person, std::io::Error> {
+    let input = std::fs::read_to_string("people.txt")?;
+    let mut lines = input.lines();
+    let first_name = lines.next().unwrap_or("").to_string();
+    let last_name = lines.next().unwrap_or("").to_string();
+    let age_as_string = lines.next().unwrap_or("0").to_string();
+    let age = u8::from_str(&age_as_string).ok();
+    let person = Person {
+        first_name,
+        last_name,
+        age,
+    };
+    Ok(person)
 }
