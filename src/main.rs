@@ -40,14 +40,15 @@ fn new_from_input() -> Person {
     println!("What is your age?");
     let age = loop {
         match read_number() {
-            Some(age) => break age,
+            Some(age) => break Some(age),
             None => {
                 println!("Please enter a valid age.");
                 continue;
             }
         }
     };
-    let person = Person::new(first_name, last_name, Some(age));
+    let person = Person::new(first_name, last_name, age);
+    let _ = write_person(&person);
     person
 }
 
@@ -63,4 +64,17 @@ fn read_string() -> String {
 fn read_number() -> Option<u8> {
     let input = read_string();
     u8::from_str(&input).ok()
+}
+
+fn write_person(person: &Person) -> std::io::Result<()> {
+    let mut output = String::new();
+    output.push_str(&person.first_name);
+    output.push('\n');
+    output.push_str(&person.last_name);
+    output.push('\n');
+    if let Some(age) = person.age {
+        output.push_str(&age.to_string());
+    }
+    output.push('\n');
+    std::fs::write("people.txt", output)
 }
