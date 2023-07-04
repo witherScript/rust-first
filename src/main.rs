@@ -1,13 +1,13 @@
-use std::str::FromStr;
+use std::{option, str::FromStr, sync::Arc};
 
 struct Person {
     first_name: String,
     last_name: String,
-    age: u8,
+    age: Option<u8>,
 }
 
 impl Person {
-    fn new(first_name: String, last_name: String, age: u8) -> Person {
+    fn new(first_name: String, last_name: String, age: Option<u8>) -> Person {
         Person {
             first_name,
             last_name,
@@ -16,13 +16,15 @@ impl Person {
     }
     fn print(&self) {
         println!("Hello {} {}", self.first_name, self.last_name);
-        println!("You are {} years old.", self.age);
+        if self.age.is_some() {
+            println!("You are {} years old.", self.age.unwrap());
+        }
     }
 }
 
 fn main() {
     let person = new_from_input();
-    let person2 = Person::new("John".to_string(), "Doe".to_string(), 42);
+    let person2 = Person::new("John".to_string(), "Doe".to_string(), Some(42));
 
     let new_vec = vec![person, person2];
 
@@ -30,15 +32,22 @@ fn main() {
         new_vec[number].print();
     }
 }
-
 fn new_from_input() -> Person {
     println!("What is your first name?");
     let first_name = read_string();
     println!("What is your last name?");
     let last_name = read_string();
     println!("What is your age?");
-    let age = read_number();
-    let person = Person::new(first_name, last_name, age);
+    let age = loop {
+        match read_number() {
+            Some(age) => break age,
+            None => {
+                println!("Please enter a valid age.");
+                continue;
+            }
+        }
+    };
+    let person = Person::new(first_name, last_name, Some(age));
     person
 }
 
@@ -51,7 +60,7 @@ fn read_string() -> String {
     cleaned_input
 }
 
-fn read_number() -> u8 {
+fn read_number() -> Option<u8> {
     let input = read_string();
-    u8::from_str(&input).unwrap_or(0)
+    u8::from_str(&input).ok()
 }
